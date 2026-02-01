@@ -1,12 +1,20 @@
 import { createClient } from '@supabase/supabase-js';
 import { LottoGame, SavedGame, HistoricalDraw } from '../types';
 
-// Credenciais via Variáveis de Ambiente (Segurança)
-const SUPABASE_URL = process.env.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_KEY || '';
+// Credenciais via Variáveis de Ambiente
+// Se estiver vazio (erro de config), usa valores placeholder para evitar crash da aplicação ("supabaseUrl is required")
+const envUrl = process.env.SUPABASE_URL || '';
+const envKey = process.env.SUPABASE_KEY || '';
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.warn("Supabase credentials not found in environment variables.");
+// Se as variáveis estiverem vazias, usamos um placeholder válido para inicializar o cliente sem erro
+// As chamadas de rede falharão, mas a tela branca (crash) será evitada
+const SUPABASE_URL = envUrl.length > 0 ? envUrl : 'https://placeholder.supabase.co';
+const SUPABASE_ANON_KEY = envKey.length > 0 ? envKey : 'placeholder';
+
+const isConfigured = envUrl.length > 0 && envKey.length > 0;
+
+if (!isConfigured) {
+  console.warn("Supabase credentials not found. Using mock client to prevent crash.");
 }
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -14,6 +22,9 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // --- AUTHENTICATION ---
 
 export const signIn = async (email: string, password: string) => {
+  if (!isConfigured) {
+      return { data: null, error: { message: "Sistema offline: Credenciais do Supabase não configuradas." } as any };
+  }
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -22,11 +33,13 @@ export const signIn = async (email: string, password: string) => {
 };
 
 export const signOut = async () => {
+  if (!isConfigured) return { error: null };
   const { error } = await supabase.auth.signOut();
   return { error };
 };
 
 export const getSession = async () => {
+  if (!isConfigured) return { session: null, error: null };
   const { data, error } = await supabase.auth.getSession();
   return { session: data.session, error };
 };
@@ -34,6 +47,8 @@ export const getSession = async () => {
 // --- SAVED GAMES (JOGOS GERADOS) ---
 
 export const saveGameToDb = async (game: LottoGame): Promise<{ success: boolean; error?: string }> => {
+  if (!isConfigured) return { success: false, error: "Modo Offline (Sem Banco de Dados)" };
+  
   try {
     const payload = {
       numbers: game.numbers,
@@ -73,6 +88,7 @@ export const saveGameToDb = async (game: LottoGame): Promise<{ success: boolean;
 };
 
 export const getSavedGames = async (): Promise<SavedGame[]> => {
+  if (!isConfigured) return [];
   try {
     const { data, error } = await supabase
       .from('saved_games')
@@ -88,6 +104,7 @@ export const getSavedGames = async (): Promise<SavedGame[]> => {
 };
 
 export const deleteSavedGame = async (id: number): Promise<boolean> => {
+    if (!isConfigured) return false;
     const { error } = await supabase.from('saved_games').delete().eq('id', id);
     return !error;
 }
@@ -95,6 +112,7 @@ export const deleteSavedGame = async (id: number): Promise<boolean> => {
 // --- HISTORICAL RESULTS (CONCURSOS) ---
 
 export const getStoredDraws = async (): Promise<HistoricalDraw[]> => {
+    if (!isConfigured) return [];
     try {
         const { data, error } = await supabase
             .from('draw_results')
@@ -110,6 +128,7 @@ export const getStoredDraws = async (): Promise<HistoricalDraw[]> => {
 }
 
 export const getLatestDrawNumber = async (): Promise<number> => {
+    if (!isConfigured) return 0;
     try {
         const { data, error } = await supabase
             .from('draw_results')
@@ -134,7 +153,7 @@ export const getLatestDrawNumber = async (): Promise<number> => {
 }
 
 export const saveDraws = async (draws: HistoricalDraw[]): Promise<{ success: boolean; count: number }> => {
-    if (!draws || draws.length === 0) return { success: true, count: 0 };
+    if (!isConfigured || !draws || draws.length === 0) return { success: true, count: 0 };
     
     try {
         // Usa upsert para evitar duplicatas baseadas na coluna 'concourse' (deve ser unique no BD)

@@ -28,6 +28,9 @@ const App: React.FC = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setAuthLoading(false);
+    }).catch(err => {
+      console.warn("Sessão não pôde ser verificada (Provável erro de configuração/rede):", err);
+      setAuthLoading(false);
     });
 
     // Listen for auth changes

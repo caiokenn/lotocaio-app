@@ -26,12 +26,13 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm ci
+        # CORREÇÃO: Usar 'npm install' em vez de 'npm ci' para gerar o lockfile se necessário
+        run: npm install
 
       - name: Build
         run: npm run build
         env:
-          # O GitHub Actions vai pegar os segredos do repositório e injetar aqui
+          # Injeção das chaves secretas configuradas no GitHub
           API_KEY: ${{ secrets.API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
