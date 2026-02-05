@@ -137,11 +137,45 @@ export const generateLottoSuggestions = async (): Promise<GeneratorResponse> => 
 
       ESTRATÉGIA 5: "ESTRATÉGIA DE FILTRO ESTRUTURADO 7-2-2-4" (OBRIGATÓRIO)
       
-Para cada jogo de 15 números, você deve selecionar os números abaixo, sempre considerando a melhor opção conforme histórico:
-1. Exatamente 7 Números Pares do conjunto: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24]
-2. Exatamente 2 Números Ímpares do conjunto: [1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25]
-3. Exatamente 2 Números Primos do conjunto: [2, 3, 5, 7, 11, 13, 17, 19, 23]
-4. Exatamente 4 Números Fibonacci do conjunto: [1, 2, 3, 5, 8, 13, 21]
+Objetivo: Gerar jogos de 15 números respeitando estritamente a distribuição de categorias, priorizando números com maior frequência no histórico recente.
+
+Regras de Seleção Hierárquica
+Para garantir que o jogo tenha exatamente 15 números únicos, a seleção deve seguir esta ordem obrigatória, removendo o número escolhido das listas subsequentes:
+
+PASSO 1: 4 Números Fibonacci
+
+Conjunto: [1, 2, 3, 5, 8, 13, 21]
+
+Ação: Selecione os 4 com melhor desempenho histórico.
+
+PASSO 2: 2 Números Primos (Restantes)
+
+Conjunto: [7, 11, 17, 19, 23] (Nota: 2, 3, 5 e 13 foram movidos para Fibonacci para evitar duplicidade).
+
+Ação: Selecione os 2 com melhor desempenho entre os que sobraram.
+
+PASSO 3: 7 Números Pares (Restantes)
+
+Conjunto: [4, 6, 10, 12, 14, 16, 18, 20, 22, 24] (Nota: 2 e 8 já foram tratados nos grupos anteriores).
+
+Ação: Selecione os 7 com melhor desempenho.
+
+PASSO 4: 2 Números Ímpares (Restantes)
+
+Conjunto: [9, 15, 25] (Nota: Os outros ímpares já foram distribuídos em Fibonacci e Primos).
+
+Ação: Selecione os 2 com melhor desempenho.
+
+Validação Final (Checklist de Assertividade)
+O script deve validar os seguintes pontos antes de entregar o jogo:
+
+Contagem Total: O jogo possui exatamente 15 números?
+
+Unicidade: Existe algum número repetido entre os grupos? (Se sim, substituir pelo próximo do histórico).
+
+Soma Total: A soma dos 15 números está entre 160 e 220? (Este é o padrão de 80% dos sorteios da Lotofácil).
+
+Equilíbrio: A distribuição final resultou em 7 a 9 números repetidos do concurso anterior?
 - Tags: ["ESTRATÉGIA DE FILTRO ESTRUTURADO 7-2-2-4 (OBRIGATÓRIO)"]
         
       Formato JSON estrito.
