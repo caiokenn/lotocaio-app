@@ -135,6 +135,15 @@ export const generateLottoSuggestions = async (): Promise<GeneratorResponse> => 
       - O objetivo é cercar a zebra.
       - Tags: ["Alavancagem", "Busca de 14pts"]
 
+      ESTRATÉGIA 5: "ESTRATÉGIA DE FILTRO ESTRUTURADO 7-2-2-4" (OBRIGATÓRIO)
+      
+Para cada jogo de 15 números, você deve selecionar os números abaixo, sempre considerando a melhor opção conforme histórico:
+1. Exatamente 7 Números Pares do conjunto: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24]
+2. Exatamente 2 Números Ímpares do conjunto: [1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25]
+3. Exatamente 2 Números Primos do conjunto: [2, 3, 5, 7, 11, 13, 17, 19, 23]
+4. Exatamente 4 Números Fibonacci do conjunto: [1, 2, 3, 5, 8, 13, 21]
+- Tags: ["ESTRATÉGIA DE FILTRO ESTRUTURADO 7-2-2-4 (OBRIGATÓRIO)"]
+        
       Formato JSON estrito.
     `;
 
